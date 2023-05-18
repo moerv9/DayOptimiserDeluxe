@@ -175,9 +175,13 @@ def main():
     st.header("Logbuch:")
     all_entries = collection.find({})
     all_senf = [entry["mein_senf"] for entry in all_entries]
-    senf = [senf for sublist in all_senf for senf in sublist]
-    for entry in senf:
-        st.write(f"{random.choice(emojis)} {entry}")
+    if len(all_senf) == 0:
+        st.warning("Keine Daten bisher.")
+        return
+    else:
+        senf = [senf for sublist in all_senf for senf in sublist]
+        for entry in senf:
+            st.write(f"{random.choice(emojis)} {entry}")
 
 
 
