@@ -54,7 +54,7 @@ st.title("Time Audit Record")
 date = datetime.date.today().strftime("%d %b")
 #date_col1,time_col1 = st.columns(2)
 current_time = datetime.datetime.now()
-current_hour = datetime.datetime.now().hour
+current_hour = datetime.datetime.now().hour + 1
 previous_hour = (current_hour - 1) % 24
 time_frame = f"{previous_hour} - {current_hour}"
 st.text(f"Timestamp: {date}, {time_frame}")# date = st.date_input("", value=datetime.date.today())
@@ -242,22 +242,29 @@ def on_task_toggle(task_id, value):
     priority_tasks_col.update_one({"_id": task_id}, {"$set": {"completed": value}})
     st.experimental_rerun()
 
-checkboxes = []
+# Create a column for checkboxes and another for the task table
+checkbox_col, task_col = st.columns([1, 4])
+
+# Render checkboxes in the first column
 for _, row in task_df.iterrows():
     task_id = row["id"]
     completed = row["completed"]
-    checkboxes.append(st.checkbox("Completed", value=completed, key=task_id, on_change=on_task_toggle, args=(task_id,)))
+    with checkbox_col:
+        st.checkbox("Completed", value=completed, key=task_id, on_change=on_task_toggle, args=(task_id,))
 
-task_df["completed"] = checkboxes
+# Hide the 'completed' column from the task table and display it in the second column
+task_df = task_df.drop(columns=["completed"])
+task_col.write(task_df.drop(columns=["id"]).to_html(escape=False, index=False), unsafe_allow_html=True)
+
 
 save_task = st.button("Save Task")
 
-html_table = task_df.to_html(escape=False, index=False)
+#html_table = task_df.to_html(escape=False, index=False)
 # Add a style tag to the table HTML to hide the first column
-html_table = html_table.replace('<table border="1" class="dataframe">', '<table border="1" class="dataframe"><style>table.dataframe th:nth-child(1), table.dataframe td:nth-child(1) {display: none;}</style>')
+# html_table = html_table.replace('<table border="1" class="dataframe">', '<table border="1" class="dataframe"><style>table.dataframe th:nth-child(1), table.dataframe td:nth-child(1) {display: none;}</style>')
 
-# Render the modified HTML table in Streamlit
-st.write(html_table, unsafe_allow_html=True)
+# # Render the modified HTML table in Streamlit
+# st.write(html_table, unsafe_allow_html=True)
 # Save task button
 
 if save_task:
