@@ -174,14 +174,14 @@ def main():
     # Display all entries from MongoDB
     st.header("Logbuch:")
     all_entries = collection.find({})
-    all_senf = [entry["mein_senf"] for entry in all_entries]
-    if len(all_senf) == 0:
-        st.warning("Keine Daten bisher.")
-        return
-    else:
+    try:
+        all_senf = [entry["mein_senf"] for entry in all_entries]
         senf = [senf for sublist in all_senf for senf in sublist]
         for entry in senf:
             st.write(f"{random.choice(emojis)} {entry}")
+    except:
+        st.warning("Keine Daten bisher.")
+        return
 
 
 
