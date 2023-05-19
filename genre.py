@@ -9,6 +9,7 @@ import emoji, random
 client = MongoClient(st.secrets["mongo_uri"])
 db = client.Cluster0
 collection = db.genre_selection_cols
+senf_col = db.senf_col
 
 
 def generate_device_fingerprint():
@@ -184,26 +185,26 @@ def main():
     st.header("Nachricht an Jones")
     user_text = st.text_area(label="💭",placeholder="Schreibst du hier...")
     if st.button("Submit my Semf",type="primary"):
-        existing_entry = collection.find_one({"fingerprint": device_fingerprint})
-        if existing_entry:
-            existing_entry.setdefault("mein_senf", []).append(user_text)
-            collection.update_one({"fingerprint": device_fingerprint}, {"$set": existing_entry})
-            st.success("Text updated successfully!")
-        else:
-            entry = {"fingerprint": device_fingerprint, "mein_senf": [user_text]}
-            collection.insert_one(entry)
-            st.success("Text saved successfully!")
+        #existing_entry = collection.find_one({"fingerprint": device_fingerprint})
+        # if existing_entry:
+        #     existing_entry.setdefault("mein_senf", []).append(user_text)
+        #     collection.update_one({"fingerprint": device_fingerprint}, {"$set": existing_entry})
+        #     st.success("Text updated successfully!")
+        # else:
+        entry = {"fingerprint": device_fingerprint, "mein_senf": [user_text]}
+        senf_col.insert_one(entry)
+        st.success("Text saved successfully!")
         user_text = ""
 
 
     # Display all entries from MongoDB
     st.header("Was die anderen so sagen...")
-    all_entries = collection.find({})
+    all_entries = senf_col.find({})
     try:
         all_senf = [entry["mein_senf"] for entry in all_entries]
-        senf = [senf for sublist in all_senf for senf in sublist]
-        for entry in senf:
-            st.write(f"{random.choice(emojis)} {entry}")
+        #senf = [senf for sublist in all_senf for senf in sublist]
+        for entry in all_senf:
+            st.write(f"{random.choice(emojis)} {str(entry)[2:-2]}")
     except:
         st.warning("Keine Daten bisher.")
         return
