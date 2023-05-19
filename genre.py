@@ -117,15 +117,15 @@ def main():
     if st.button("Submit",type="primary"):
         selected_genres = st.session_state.selected_genres
 
-        existing_entry = collection.find_one({"fingerprint": device_fingerprint})
+        # existing_entry = collection.find_one({"fingerprint": device_fingerprint})
 
-        if existing_entry:
-            st.warning("You have already submitted genres.")
-        else:
+        # if existing_entry:
+        #     st.warning("You have already submitted genres.")
+        # else:
             # Save the new genres and device fingerprint to MongoDB collection
-            entry = {"fingerprint": device_fingerprint, "genres": selected_genres}
-            collection.insert_one(entry)
-            st.success("Genres submitted successfully!")
+        entry = {"fingerprint": device_fingerprint, "genres": selected_genres}
+        collection.insert_one(entry)
+        st.success("Genres submitted successfully!")
 
 
     st.markdown("---")
