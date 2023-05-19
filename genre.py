@@ -16,7 +16,8 @@ def generate_device_fingerprint():
     # Generate device fingerprint using relevant attributes
     user_agent = st.experimental_get_query_params().get("user_agent", [""])[0]
     ip_address = st.experimental_get_query_params().get("client_ip", [""])[0]
-    fingerprint = hashlib.sha256((user_agent + ip_address).encode()).hexdigest()
+    screen_resolution = st.experimental_get_query_params().get("screen_resolution", [""])[0]
+    fingerprint = hashlib.sha256((user_agent + ip_address+ screen_resolution).encode()).hexdigest()
     return fingerprint
 
 emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼","🐊","🐎","🐅","🐍","🐒","🐣","🐧"]
@@ -40,7 +41,7 @@ emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼","🐊",
 #     # components.html(f"{htmlstr}", height=0, width=0)
 #     st.markdown(htmlstr, unsafe_allow_html=True)
     
-color_map = plt.colormaps["Set2"]
+color_map = plt.colormaps["Set3"]
 
 
 
@@ -132,11 +133,12 @@ def main():
     st.markdown("---")
     st.empty()
 
-    st.header("Was sagt die Meute?")
-    st.text("Das sind die bisherigen Ergebnisse.")
     # Retrieve the data from the MongoDB collection
     all_entries = collection.find({})
     all_genres = [entry["genres"] for entry in all_entries]
+    st.header("Was sagt die Meute?")
+    st.text(f"{len(all_genres)} Personen haben abgestimmt. Das sind die bisherigen Ergebnisse:")
+    
     if len(all_genres) == 0:
         st.warning("Keine Daten bisher.")
         return
