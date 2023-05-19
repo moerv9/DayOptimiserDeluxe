@@ -45,18 +45,20 @@ color_map = plt.colormaps["Set2"]
 
 def main():
     st.title("Welche Genres willst du hören?")
+    st.text("Wähle deine Lieblingsgenres aus und klicke auf Submit.")
     genres = [
         "Drum and Bass",
         "Techno",
         "House",
         "EDM",
+        "Funk",
         "Pop",
         "Rock",
         "Trance",
         "2000s",
         "90s",
         "80s",
-        "Country",
+        "Afro",
         "Grime",
         "Rap",
         "Hip Hop"
@@ -81,6 +83,7 @@ def main():
     # Split genres into groups of columns_per_row
     genre_groups = [genres[i:i+columns_per_row] for i in range(0, num_genres, columns_per_row)]
 
+
     # Display buttons in columns
     for group in genre_groups:
         cols = st.columns(columns_per_row)
@@ -93,6 +96,11 @@ def main():
                 else:
                     st.session_state.selected_genres.append(genre)
 
+            # Display the selected genres
+    selected_genres_str = ", ".join(st.session_state.selected_genres)
+    st.markdown(f"**Selected Genres: {selected_genres_str}**", unsafe_allow_html=True)
+    
+
     # for i, genre in enumerate(genres):
     #     button_id = f"{genre}_button"
 
@@ -104,9 +112,7 @@ def main():
     #         else:
     #             st.session_state.selected_genres.append(genre)
 
-    # Display the selected genres
-    selected_genres_str = ", ".join(st.session_state.selected_genres)
-    st.markdown(f"**Selected Genres: {selected_genres_str}**", unsafe_allow_html=True)
+
 
     if st.button("Submit",type="primary"):
         selected_genres = st.session_state.selected_genres
@@ -126,6 +132,7 @@ def main():
     st.empty()
 
     st.header("Was sagt die Meute?")
+    st.text("Das sind die bisherigen Ergebnisse.")
     # Retrieve the data from the MongoDB collection
     all_entries = collection.find({})
     all_genres = [entry["genres"] for entry in all_entries]
@@ -137,14 +144,32 @@ def main():
         # Create a dataframe to count the genres
         genre_counts = pd.Series(flattened_genres).value_counts()
         # Plot the genre count diagram
+
+        chart_type = st.radio("Chart type",options=("Bar","Pie"),key="chart_type")
+        if chart_type == "Pie":
+            # Plot the genre count pie chart
+            plt.figure(figsize=(10, 6), facecolor='white')
+            genre_counts.plot(kind="pie", labels=genre_counts.index, autopct='%1.1f%%', colors=color_map(range(len(genre_counts))))
+            plt.title(None)
+            plt.ylabel(None)
+            plt.xlabel(None)
+            st.pyplot(plt)
+        elif chart_type == "Bar":
+            # Plot the genre count bar chart
+            plt.figure(figsize=(10, 6), facecolor='white')
+            genre_counts.plot(kind="barh", color=color_map(range(len(genre_counts))))
+            plt.title(None)
+            plt.ylabel(None)
+            plt.xlabel(None)
+            st.pyplot(plt)
         #plt.pie(genre_counts, labels=genres, autopct='%1.1f%%', colors=color_map(range(len(genre_counts))))
         #genre_counts.plot(kind="bar", color=color_map(range(len(genre_counts))))
-        plt.figure(figsize=(10, 6),facecolor='white')
-        genre_counts.plot(kind="pie", labels=genre_counts.index, autopct='%1.1f%%', colors=color_map(range(len(genre_counts))))
-        plt.title(None)
-        plt.ylabel(None)
-        plt.xlabel(None)
-        st.pyplot(plt)
+        # plt.figure(figsize=(10, 6),facecolor='white')
+        # genre_counts.plot(kind="pie", labels=genre_counts.index, autopct='%1.1f%%', colors=color_map(range(len(genre_counts))))
+        # plt.title(None)
+        # plt.ylabel(None)
+        # plt.xlabel(None)
+        # st.pyplot(plt)
 
     # cols = st.columns(4)
     # cols[0].button('first button', key='b1')
@@ -156,9 +181,9 @@ def main():
     # ChangeButtonColour('fourth button', '#c19af5', '#354b75') # button txt to find, colour to assign
     st.markdown("---")
     st.empty()
-    st.header("Gib mir deinen Senf")
+    st.header("Nachricht an Jones")
     user_text = st.text_area(label="💭",placeholder="Schreibst du hier...")
-    if st.button("Save"):
+    if st.button("Submit my Semf",type="primary"):
         existing_entry = collection.find_one({"fingerprint": device_fingerprint})
         if existing_entry:
             existing_entry.setdefault("mein_senf", []).append(user_text)
@@ -172,7 +197,7 @@ def main():
 
 
     # Display all entries from MongoDB
-    st.header("Logbuch:")
+    st.header("Was die anderen so sagen...")
     all_entries = collection.find({})
     try:
         all_senf = [entry["mein_senf"] for entry in all_entries]
