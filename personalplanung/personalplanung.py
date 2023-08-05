@@ -331,7 +331,7 @@ if st.button("Erstelle den Arbeitsplan"):
         # Not available
         if employee in not_available:
             for day in not_available[employee]:
-                df.loc[df.index.day == day, employee] = "n.V."
+                df.loc[df.index.day == day, employee] = "n.v."
 
         # Rest days (considering that 0 corresponds to Monday in Python's date.weekday() method)
         for day in [(d - 1) % 7 for d in rest_days]:
